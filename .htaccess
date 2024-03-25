@@ -1,0 +1,42 @@
+Options +FollowSymLinks
+RewriteEngine On
+
+
+<IfModule mod_php5.c>
+    # Устанавливаем кодировку UTF-8
+    AddDefaultCharset UTF-8
+</IfModule>
+
+<IfModule mod_php7.c>
+    # Устанавливаем кодировку UTF-8
+    AddDefaultCharset UTF-8
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+Header always set Access-Control-Allow-Origin "*"
+Header always set Access-Control-Allow-Methods "POST, GET, OPTIONS"
+Header always set Access-Control-Allow-Headers "Content-Type"
+    SetEnvIf X-Forwarded-Proto https SERVER_PORT=443
+    SetEnvIf X-Forwarded-Proto https HTTPS=on
+
+    # Перенаправление на HTTPS
+    # RewriteCond %{HTTP:HTTPS} !=on [NC]
+    # RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
+
+    # Удаление лишних слешей в URL
+    RewriteCond %{THE_REQUEST} //
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$0 [R=301,L]
+
+    # Удаление index.php из URL
+    RewriteCond %{REQUEST_URI} ^(.*)/index\.php$
+    RewriteRule ^(.*)index\.php$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+    # Удаление index.html из URL
+    RewriteCond %{REQUEST_URI} ^(.*)/index\.html$
+    RewriteRule ^(.*)index\.html$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+    # Разрешение запросов методом POST для api.php
+RewriteCond %{REQUEST_METHOD} !^POST$
+RewriteRule ^api\.php$ - [L]
+</IfModule>
